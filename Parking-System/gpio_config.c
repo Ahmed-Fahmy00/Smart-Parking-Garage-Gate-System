@@ -180,7 +180,7 @@ uint8_t Btn_DriverOpen_Read(void)
     if (gSimDriverOpen)
         return BTN_PRESSED;
 
-    if ((GPIO_PORTF_DATA_R & BTN_DRIVER_OPEN_PIN) == 0)
+    if ((GPIO_PORTD_DATA_R & BTN_DRIVER_OPEN_PIN) != 0)
         return BTN_PRESSED;
 
     return BTN_RELEASED;
@@ -191,7 +191,7 @@ uint8_t Btn_DriverClose_Read(void)
     if (gSimDriverClose)
         return BTN_PRESSED;
 
-    if ((GPIO_PORTE_DATA_R & BTN_DRIVER_CLOSE_PIN) != 0)
+    if ((GPIO_PORTD_DATA_R & BTN_DRIVER_CLOSE_PIN) != 0)
         return BTN_PRESSED;
 
     return BTN_RELEASED;
@@ -199,8 +199,10 @@ uint8_t Btn_DriverClose_Read(void)
 
 uint8_t Btn_SecurityOpen_Read(void)
 {
-        return gSimSecurityOpen ? BTN_PRESSED :
-            (((GPIO_PORTE_DATA_R & BTN_SECURITY_OPEN_PIN) != 0) ? BTN_PRESSED : BTN_RELEASED);
+    if (gSimSecurityOpen)
+        return BTN_PRESSED;
+
+    return ((GPIO_PORTB_DATA_R & BTN_SECURITY_OPEN_PIN) != 0) ? BTN_PRESSED : BTN_RELEASED;
 }
 
 uint8_t Btn_SecurityClose_Read(void)
@@ -216,18 +218,23 @@ uint8_t Btn_OpenLimit_Read(void)
     if (gSimOpenLimit)
         return BTN_PRESSED;
 
-    return ((GPIO_PORTB_DATA_R & BTN_OPEN_LIMIT_PIN) != 0) ? BTN_PRESSED : BTN_RELEASED;
+    return ((GPIO_PORTE_DATA_R & BTN_OPEN_LIMIT_PIN) != 0) ? BTN_PRESSED : BTN_RELEASED;
 }
 
 uint8_t Btn_ClosedLimit_Read(void)
 {
-        return gSimClosedLimit ? BTN_PRESSED :
-            (((GPIO_PORTD_DATA_R & BTN_CLOSED_LIMIT_PIN) != 0) ? BTN_PRESSED : BTN_RELEASED);
+    if (gSimClosedLimit)
+        return BTN_PRESSED;
+
+    return ((GPIO_PORTE_DATA_R & BTN_CLOSED_LIMIT_PIN) != 0) ? BTN_PRESSED : BTN_RELEASED;
 }
 
 uint8_t Btn_Obstacle_Read(void)
 {
-        return gSimObstacle ? BTN_PRESSED :
+    if (gSimObstacle)
+        return BTN_PRESSED;
+
+    return ((GPIO_PORTF_DATA_R & BTN_OBSTACLE_PIN) != 0) ? BTN_PRESSED : BTN_RELEASED;
             (((GPIO_PORTD_DATA_R & BTN_OBSTACLE_PIN) != 0) ? BTN_PRESSED : BTN_RELEASED);
 }
 
