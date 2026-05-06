@@ -55,6 +55,16 @@ static const char * get_state_name(GateState_t state)
     }
 }
 
+static const char * get_source_name(EventSource_t src)
+{
+    switch (src)
+    {
+        case SRC_DRIVER:    return "DRIVER";
+        case SRC_SECURITY:  return "SECURITY";
+        default:            return "UNKNOWN";
+    }
+}
+
 /**
  * Print gate state transition to serial/ADU
  */
@@ -118,8 +128,22 @@ void GateControlTask(void *pvParameters)
         /*  OPEN button pressed                                           */
         /* ============================================================== */
         case EV_OPEN_PRESS:
+        {
+            char btn_msg[64];
+            sprintf(btn_msg, "[Button] %s OPEN pressed", get_source_name(ev.source));
+            vPrintString(btn_msg);
+            vPrintString("\r\n");
+
             if (!source_has_priority(ev.source))
+            {
+                char pri_msg[80];
+                sprintf(pri_msg, "  [Priority] %s overrides %s",
+                        get_source_name(g_activeSource),
+                        get_source_name(ev.source));
+                vPrintString(pri_msg);
+                vPrintString("\r\n");
                 break;
+            }
 
             if (s == GATE_IDLE_CLOSED  ||
                 s == GATE_STOPPED_MIDWAY  ||
@@ -129,11 +153,13 @@ void GateControlTask(void *pvParameters)
                 set_gate_state(GATE_OPENING, ev.source, 1);
             }
             break;
+        }
 
         /* ============================================================== */
         /*  OPEN button released                                          */
         /* ============================================================== */
         case EV_OPEN_RELEASE:
+        {
             if (ev.source != g_activeSource)
                 break;                          /* not the controlling source */
 
@@ -152,13 +178,27 @@ void GateControlTask(void *pvParameters)
                 }
             }
             break;
-
+        }
         /* ============================================================== */
         /*  CLOSE button pressed                                          */
         /* ============================================================== */
         case EV_CLOSE_PRESS:
+        {
+            char btn_msg[64];
+            sprintf(btn_msg, "[Button] %s CLOSE pressed", get_source_name(ev.source));
+            vPrintString(btn_msg);
+            vPrintString("\r\n");
+
             if (!source_has_priority(ev.source))
+            {
+                char pri_msg[80];
+                sprintf(pri_msg, "  [Priority] %s overrides %s",
+                        get_source_name(g_activeSource),
+                        get_source_name(ev.source));
+                vPrintString(pri_msg);
+                vPrintString("\r\n");
                 break;
+            }
 
             if (s == GATE_IDLE_OPEN  ||
                 s == GATE_STOPPED_MIDWAY  ||
@@ -168,6 +208,7 @@ void GateControlTask(void *pvParameters)
                 set_gate_state(GATE_CLOSING, ev.source, 1);
             }
             break;
+        }
 
         /* ============================================================== */
         /*  CLOSE button released                                         */

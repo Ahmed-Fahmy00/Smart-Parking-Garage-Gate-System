@@ -144,9 +144,6 @@ int main(void)
     /* ---- 5. Print startup status ---- */
     vPrintString("========================================\r\n");
     vPrintString("PARKING SYSTEM STARTED\r\n");
-    {
-        vPrintString("Gate simulation: only open/close behavior enabled\r\n");
-    }
     vPrintString("Gate Status: IDLE_CLOSED\r\n");
     vPrintString("========================================\r\n");
 
