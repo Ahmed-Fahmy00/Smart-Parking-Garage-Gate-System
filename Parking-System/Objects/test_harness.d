@@ -23,4 +23,7 @@
   C:\Users\Ahmed\ Fahmy\AppData\Local\Arm\Packs\ARM\CMSIS-FreeRTOS\11.2.0\Source\include\queue.h \
   C:\Users\Ahmed\ Fahmy\AppData\Local\Arm\Packs\ARM\CMSIS-FreeRTOS\11.2.0\Source\include\task.h \
   C:\Users\Ahmed\ Fahmy\AppData\Local\Arm\Packs\ARM\CMSIS-FreeRTOS\11.2.0\Source\include\list.h \
-  C:\Users\Ahmed\ Fahmy\AppData\Local\Arm\Packs\ARM\CMSIS-FreeRTOS\11.2.0\Source\include\semphr.h
+  C:\Users\Ahmed\ Fahmy\AppData\Local\Arm\Packs\ARM\CMSIS-FreeRTOS\11.2.0\Source\include\semphr.h \
+  C:\Keil_v5\ARM\ARMCLANG\Bin\..\include\stdio.h \
+  C:\Keil_v5\ARM\ARMCLANG\Bin\..\include\string.h gpio_config.h \
+  Required_Files\basic_io.h

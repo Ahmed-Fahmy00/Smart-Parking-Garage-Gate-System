@@ -435,11 +435,6 @@
               <FileType>1</FileType>
               <FilePath>.\Required_Files\retarget.c</FilePath>
             </File>
-            <File>
-              <FileName>test_harness.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\test_harness.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>

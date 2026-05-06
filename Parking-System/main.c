@@ -19,7 +19,6 @@
  *        StatusTask          1        Limit-LED feedback (lowest)
  *   4. Starts the FreeRTOS scheduler.
  ******************************************************************************/
-
 #include <stdint.h>
 #include <stdio.h>
 #include "FreeRTOS.h"
@@ -33,7 +32,6 @@
 #include "led_control.h"
 #include "safety_task.h"
 #include "status_task.h"
-#include "test_harness.h"
 #include "basic_io.h"
 
 /* ========================================================================== */
@@ -80,7 +78,7 @@ void vApplicationMallocFailedHook(void)
 int main(void)
 {
     /* 1 = Manual (stop on release), 0 = Auto (short tap continues) */
-    ManualMode = 1;
+    ManualMode = 0;
 
     /* ---- 1. Hardware init ---- */
     GPIO_Init();
@@ -114,20 +112,6 @@ int main(void)
     xTaskCreate(GateControlTask,  "GateCtrl", 256, NULL,  3,  NULL);
     xTaskCreate(LEDControlTask,   "LEDCtrl",  128, NULL,  3,  NULL);
     xTaskCreate(StatusTask,       "Status",   128, NULL,  1,  NULL);
-
-    /* Create test task only when compiled-in and when test-mode enabled. */
-#if ENABLE_TEST_HARNESS
-    /* Set gEnableTestMode = 1 in debugger or test harness to run tests */
-    if (gEnableTestMode)
-    {
-        /* smaller stack for test task to reduce image size on constrained builds */
-        xTaskCreate(TestTask, "Test", 256, NULL, 9, NULL);
-        vPrintString("TEST MODE ENABLED - Running automated test suite\r\n");
-    }
-#else
-    vPrintString("Test harness not compiled into this build.\r\n");
-#endif
-
 
     /* ---- 5. Print startup status ---- */
     vPrintString("========================================\r\n");
