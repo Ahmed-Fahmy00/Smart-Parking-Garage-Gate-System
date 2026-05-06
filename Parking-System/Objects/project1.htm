@@ -3,11 +3,11 @@
 <title>Static Call Graph - [.\Objects\project1.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\project1.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6190004: Last Updated: Tue May  5 11:31:40 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6190004: Last Updated: Wed May  6 18:16:21 2026
 <BR><P>
-<H3>Maximum Stack Usage =        388 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
+<H3>Maximum Stack Usage =        324 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
-__rt_entry_main &rArr; main &rArr; vTaskStartScheduler &rArr; prvCreateIdleTasks &rArr; xTaskCreateStatic &rArr; prvCreateStaticTask &rArr; prvInitialiseNewTask &rArr; pxPortInitialiseStack
+_printf_f &rArr; _printf_fp_dec &rArr; _printf_fp_dec_real &rArr; _fp_digits &rArr; _btod_etento &rArr; _btod_emul &rArr; _e2e
 <P>
 <H3>
 Functions with no stack information
@@ -567,7 +567,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[c2]"></a>__rt_entry_main</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, __rtentry2.o(.ARM.Collect$$rtentry$$0000000D))
-<BR><BR>[Stack]<UL><LI>Max Depth = 388 + Unknown Stack Size
+<BR><BR>[Stack]<UL><LI>Max Depth = 300 + Unknown Stack Size
 <LI>Call Chain = __rt_entry_main &rArr; main &rArr; vTaskStartScheduler &rArr; prvCreateIdleTasks &rArr; xTaskCreateStatic &rArr; prvCreateStaticTask &rArr; prvInitialiseNewTask &rArr; pxPortInitialiseStack
 </UL>
 <BR>[Calls]<UL><LI><a href="#[c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
@@ -1405,9 +1405,8 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_sputc
 <LI><a href="#[ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_printf_char_common
 </UL>
-<BR>[Called By]<UL><LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_state_transition
-<LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPrintString
-<LI><a href="#[c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
+<BR>[Called By]<UL><LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_state_transition
+<LI><a href="#[ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPrintString
 </UL>
 
 <P><STRONG><a name="[124]"></a>__aeabi_memcpy</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, rt_memcpy_v6.o(.text))
@@ -1851,16 +1850,16 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[7d]"></a>GateControlTask</STRONG> (Thumb, 944 bytes, Stack size 64 bytes, gate_control.o(.text.GateControlTask))
-<BR><BR>[Stack]<UL><LI>Max Depth = 328 + Unknown Stack Size
+<P><STRONG><a name="[7d]"></a>GateControlTask</STRONG> (Thumb, 550 bytes, Stack size 56 bytes, gate_control.o(.text.GateControlTask))
+<BR><BR>[Stack]<UL><LI>Max Depth = 312 + Unknown Stack Size
 <LI>Call Chain = GateControlTask &rArr; print_state_transition &rArr; vPrintString &rArr; sprintf &rArr; _printf_char_common &rArr; __printf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueReceive
-<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_state_transition
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;set_gate_state
+<LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_state_transition
 <LI><a href="#[f1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;source_has_priority
 <LI><a href="#[f4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
 <LI><a href="#[f0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueSemaphoreTake
-<LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPrintString
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> main.o(.text.main)
 </UL>
@@ -1923,15 +1922,14 @@ Global Symbols
 <BR>[Address Reference Count : 2]<UL><LI> port.o(.text.xPortStartScheduler)
 <LI> startup_tm4c123.o(RESET)
 </UL>
-<P><STRONG><a name="[7b]"></a>SafetyTask</STRONG> (Thumb, 280 bytes, Stack size 32 bytes, safety_task.o(.text.SafetyTask))
-<BR><BR>[Stack]<UL><LI>Max Depth = 184 + Unknown Stack Size
+<P><STRONG><a name="[7b]"></a>SafetyTask</STRONG> (Thumb, 256 bytes, Stack size 24 bytes, safety_task.o(.text.SafetyTask))
+<BR><BR>[Stack]<UL><LI>Max Depth = 176 + Unknown Stack Size
 <LI>Call Chain = SafetyTask &rArr; vPrintString &rArr; sprintf &rArr; _printf_char_common &rArr; __printf
 </UL>
-<BR>[Calls]<UL><LI><a href="#[ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_state_transition
-<LI><a href="#[fe]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
+<BR>[Calls]<UL><LI><a href="#[fe]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
 <LI><a href="#[f4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
 <LI><a href="#[f0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueSemaphoreTake
-<LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPrintString
+<LI><a href="#[ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPrintString
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> main.o(.text.main)
 </UL>
@@ -1943,7 +1941,7 @@ Global Symbols
 <LI><a href="#[f0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueSemaphoreTake
 <LI><a href="#[101]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Blue_Off
 <LI><a href="#[100]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;LED_Blue_On
-<LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPrintString
+<LI><a href="#[ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPrintString
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> main.o(.text.main)
 </UL>
@@ -2004,20 +2002,19 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ITM_SendChar
 </UL>
-<BR>[Called By]<UL><LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPrintString
+<BR>[Called By]<UL><LI><a href="#[ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPrintString
 </UL>
 
-<P><STRONG><a name="[c3]"></a>main</STRONG> (Thumb, 426 bytes, Stack size 144 bytes, main.o(.text.main))
-<BR><BR>[Stack]<UL><LI>Max Depth = 388 + Unknown Stack Size
+<P><STRONG><a name="[c3]"></a>main</STRONG> (Thumb, 404 bytes, Stack size 56 bytes, main.o(.text.main))
+<BR><BR>[Stack]<UL><LI>Max Depth = 300 + Unknown Stack Size
 <LI>Call Chain = main &rArr; vTaskStartScheduler &rArr; prvCreateIdleTasks &rArr; xTaskCreateStatic &rArr; prvCreateStaticTask &rArr; prvInitialiseNewTask &rArr; pxPortInitialiseStack
 </UL>
 <BR>[Calls]<UL><LI><a href="#[110]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskStartScheduler
-<LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPrintString
+<LI><a href="#[ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPrintString
 <LI><a href="#[10f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskCreate
 <LI><a href="#[10e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueCreateMutex
 <LI><a href="#[10d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericCreate
 <LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_Init
-<LI><a href="#[c9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sprintf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__rt_entry_main
 </UL>
@@ -2198,7 +2195,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[14b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xPortStartScheduler
 </UL>
 
-<P><STRONG><a name="[f2]"></a>vPrintString</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, basic_io.o(.text.vPrintString))
+<P><STRONG><a name="[ff]"></a>vPrintString</STRONG> (Thumb, 48 bytes, Stack size 16 bytes, basic_io.o(.text.vPrintString))
 <BR><BR>[Stack]<UL><LI>Max Depth = 152 + Unknown Stack Size
 <LI>Call Chain = vPrintString &rArr; sprintf &rArr; _printf_char_common &rArr; __printf
 </UL>
@@ -2207,9 +2204,8 @@ Global Symbols
 <LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskSuspendAll
 <LI><a href="#[c9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sprintf
 </UL>
-<BR>[Called By]<UL><LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_state_transition
+<BR>[Called By]<UL><LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_state_transition
 <LI><a href="#[7f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;StatusTask
-<LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GateControlTask
 <LI><a href="#[7b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SafetyTask
 <LI><a href="#[c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
@@ -2305,7 +2301,7 @@ Global Symbols
 <LI><a href="#[fe]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
 <LI><a href="#[f4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
 <LI><a href="#[f0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueSemaphoreTake
-<LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPrintString
+<LI><a href="#[ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPrintString
 </UL>
 
 <P><STRONG><a name="[8e]"></a>vTaskSwitchContext</STRONG> (Thumb, 312 bytes, Stack size 32 bytes, tasks.o(.text.vTaskSwitchContext))
@@ -2596,7 +2592,7 @@ Global Symbols
 <LI><a href="#[fe]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
 <LI><a href="#[f4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
 <LI><a href="#[f0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueSemaphoreTake
-<LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPrintString
+<LI><a href="#[ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPrintString
 </UL>
 
 <P><STRONG><a name="[14a]"></a>xTimerCreateTimerTask</STRONG> (Thumb, 134 bytes, Stack size 40 bytes, timers.o(.text.xTimerCreateTimerTask))
@@ -2728,13 +2724,19 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GateControlTask
 </UL>
 
-<P><STRONG><a name="[f3]"></a>print_state_transition</STRONG> (Thumb, 96 bytes, Stack size 112 bytes, gate_control.o(.text.print_state_transition))
-<BR><BR>[Stack]<UL><LI>Max Depth = 264 + Unknown Stack Size
+<P><STRONG><a name="[f2]"></a>print_state_transition</STRONG> (Thumb, 74 bytes, Stack size 104 bytes, gate_control.o(.text.print_state_transition))
+<BR><BR>[Stack]<UL><LI>Max Depth = 256 + Unknown Stack Size
 <LI>Call Chain = print_state_transition &rArr; vPrintString &rArr; sprintf &rArr; _printf_char_common &rArr; __printf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[116]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_state_name
-<LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPrintString
+<LI><a href="#[ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPrintString
 <LI><a href="#[c9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sprintf
+</UL>
+<BR>[Called By]<UL><LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GateControlTask
+</UL>
+
+<P><STRONG><a name="[f3]"></a>set_gate_state</STRONG> (Thumb, 86 bytes, Stack size 8 bytes, gate_control.o(.text.set_gate_state))
+<BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = set_gate_state
 </UL>
 <BR>[Called By]<UL><LI><a href="#[7d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GateControlTask
 </UL>
@@ -2742,21 +2744,15 @@ Local Symbols
 <P><STRONG><a name="[116]"></a>get_state_name</STRONG> (Thumb, 120 bytes, Stack size 12 bytes, gate_control.o(.text.get_state_name))
 <BR><BR>[Stack]<UL><LI>Max Depth = 12<LI>Call Chain = get_state_name
 </UL>
-<BR>[Called By]<UL><LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_state_transition
+<BR>[Called By]<UL><LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_state_transition
 </UL>
 
-<P><STRONG><a name="[f8]"></a>send_event</STRONG> (Thumb, 58 bytes, Stack size 24 bytes, input_task.o(.text.send_event))
+<P><STRONG><a name="[f8]"></a>send_event</STRONG> (Thumb, 66 bytes, Stack size 24 bytes, input_task.o(.text.send_event))
 <BR><BR>[Stack]<UL><LI>Max Depth = 168<LI>Call Chain = send_event &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[f4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
 </UL>
 <BR>[Called By]<UL><LI><a href="#[7c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;InputTask
-</UL>
-
-<P><STRONG><a name="[ff]"></a>print_state_transition</STRONG> (Thumb, 14 bytes, Stack size 4 bytes, safety_task.o(.text.print_state_transition))
-<BR><BR>[Stack]<UL><LI>Max Depth = 4<LI>Call Chain = print_state_transition
-</UL>
-<BR>[Called By]<UL><LI><a href="#[7b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SafetyTask
 </UL>
 
 <P><STRONG><a name="[10b]"></a>ITM_SendChar</STRONG> (Thumb, 68 bytes, Stack size 4 bytes, consoleprint.o(.text.ITM_SendChar))

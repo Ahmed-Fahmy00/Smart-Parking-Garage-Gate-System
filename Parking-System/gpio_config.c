@@ -235,7 +235,6 @@ uint8_t Btn_Obstacle_Read(void)
         return BTN_PRESSED;
 
     return ((GPIO_PORTF_DATA_R & BTN_OBSTACLE_PIN) != 0) ? BTN_PRESSED : BTN_RELEASED;
-            (((GPIO_PORTD_DATA_R & BTN_OBSTACLE_PIN) != 0) ? BTN_PRESSED : BTN_RELEASED);
 }
 
 uint16_t ADC_Slider_Read(void)

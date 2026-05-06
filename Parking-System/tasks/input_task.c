@@ -69,7 +69,10 @@ static void send_event(EventType_t type, EventSource_t src, uint32_t dur)
     ev.type        = type;
     ev.source      = src;
     ev.duration_ms = dur;
-    xQueueSend(xButtonEventQueue, &ev, 0);      /* non-blocking */
+    if (xQueueSend(xButtonEventQueue, &ev, pdMS_TO_TICKS(10)) != pdTRUE)
+    {
+        /* Queue full - event may be dropped */
+    }
 }
 
 /* ========================================================================== */

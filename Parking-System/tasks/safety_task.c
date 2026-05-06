@@ -31,12 +31,6 @@
 #include "task.h"
 #include "semphr.h"
 
-static void print_state_transition(GateState_t oldState, GateState_t newState)
-{
-    (void)oldState;
-    (void)newState;
-}
-
 void SafetyTask(void *pvParameters)
 {
     (void)pvParameters;
@@ -53,13 +47,11 @@ void SafetyTask(void *pvParameters)
         if (g_gateState == GATE_CLOSING)
         {
             /* ---- Step 1: stop and reverse ---- */
-            GateState_t prev_state = g_gateState;
             g_gateState    = GATE_REVERSING;
             g_activeSource = SRC_SAFETY;
             g_autoMode     = 0;
             
-            print_state_transition(prev_state, GATE_REVERSING);
-            vPrintString("Obstacle detected: reversing\r\n");
+            vPrintString("Obstacle detected: CLOSING -> REVERSING\r\n");
 
             /* Release mutex so LED task can see REVERSING and turn on
                the Green LED while we wait. */
@@ -75,10 +67,9 @@ void SafetyTask(void *pvParameters)
                state while we were delaying (defensive). */
             if (g_gateState == GATE_REVERSING)
             {
-                print_state_transition(GATE_REVERSING, GATE_STOPPED_MIDWAY);
                 g_gateState    = GATE_STOPPED_MIDWAY;
                 g_activeSource = SRC_NONE;
-                vPrintString("Obstacle cleared: stopped\r\n");
+                vPrintString("Obstacle cleared: REVERSING -> STOPPED_MIDWAY\r\n");
             }
 
             xSemaphoreGive(xGateStateMutex);

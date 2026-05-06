@@ -9,6 +9,7 @@
 ".\objects\basic_io.o"
 ".\objects\consoleprint.o"
 ".\objects\retarget.o"
+".\objects\test_harness.o"
 ".\objects\retarget_io.o"
 ".\objects\retarget_os_rtos2.o"
 ".\objects\freertos_evr.o"

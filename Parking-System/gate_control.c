@@ -56,38 +56,26 @@ static const char * get_state_name(GateState_t state)
 }
 
 /**
- * Convert source to human-readable string for debug output
- */
-static const char * get_source_name(EventSource_t src)
-{
-    switch (src)
-    {
-        case SRC_NONE:      return "NONE";
-        case SRC_DRIVER:    return "DRIVER";
-        case SRC_SECURITY:  return "SECURITY";
-        case SRC_LIMIT:     return "LIMIT";
-        case SRC_SAFETY:    return "SAFETY";
-        default:            return "UNKNOWN";
-    }
-}
-
-/**
  * Print gate state transition to serial/ADU
- * Usage: print_state_transition(oldState, newState)
  */
 static void print_state_transition(GateState_t oldState, GateState_t newState)
 {
-    extern volatile uint8_t gParkingOccupancy;
-    #define MAX_PARKING_PLACES  5
-    
     char msg[80];
-    sprintf(msg, "[Gate] %s -> %s | Parking: %d/%d",
+    sprintf(msg, "[Gate] %s -> %s",
             get_state_name(oldState),
-            get_state_name(newState),
-            gParkingOccupancy,
-            MAX_PARKING_PLACES);
+            get_state_name(newState));
     vPrintString(msg);
     vPrintString("\r\n");
+}
+
+/**
+ * Helper: reset gate state to a new state with given source
+ */
+static void set_gate_state(GateState_t newState, EventSource_t newSource, uint8_t clearAuto)
+{
+    g_gateState    = newState;
+    g_activeSource = newSource;
+    g_autoMode     = clearAuto ? 0 : g_autoMode;
 }
 
 /**
@@ -133,31 +121,13 @@ void GateControlTask(void *pvParameters)
             if (!source_has_priority(ev.source))
                 break;
 
-            extern volatile uint8_t gParkingOccupancy;
-            #define MAX_PARKING_PLACES  5
-            if ((s == GATE_IDLE_CLOSED) && (gParkingOccupancy >= MAX_PARKING_PLACES))
-            {
-                vPrintString("ENTRY FAILED: Parking is FULL - no spaces available\r\n");
-                break;
-            }
-
             if (s == GATE_IDLE_CLOSED  ||
-                s == GATE_STOPPED_MIDWAY)
+                s == GATE_STOPPED_MIDWAY  ||
+                s == GATE_CLOSING)
             {
                 print_state_transition(s, GATE_OPENING);
-                g_gateState    = GATE_OPENING;
-                g_activeSource = ev.source;
-                g_autoMode     = 0;             /* assume manual until release */
+                set_gate_state(GATE_OPENING, ev.source, 1);
             }
-            else if (s == GATE_CLOSING)
-            {
-                /* Reverse direction */
-                print_state_transition(s, GATE_OPENING);
-                g_gateState    = GATE_OPENING;
-                g_activeSource = ev.source;
-                g_autoMode     = 0;
-            }
-            /* IDLE_OPEN / OPENING / REVERSING -> ignore */
             break;
 
         /* ============================================================== */
@@ -169,18 +139,16 @@ void GateControlTask(void *pvParameters)
 
             if (s == GATE_OPENING)
             {
-                if (ev.duration_ms < MANUAL_HOLD_THRESHOLD_MS)
-                {
-                    /* Brief tap -> one-touch auto: keep moving to limit */
-                    g_autoMode = 1;
-                }
-                else
+                if (ev.duration_ms >= MANUAL_HOLD_THRESHOLD_MS)
                 {
                     /* Manual hold -> stop gate */
                     print_state_transition(s, GATE_STOPPED_MIDWAY);
-                    g_gateState    = GATE_STOPPED_MIDWAY;
-                    g_activeSource = SRC_NONE;
-                    g_autoMode     = 0;
+                    set_gate_state(GATE_STOPPED_MIDWAY, SRC_NONE, 1);
+                }
+                else
+                {
+                    /* Brief tap -> one-touch auto: keep moving to limit */
+                    g_autoMode = 1;
                 }
             }
             break;
@@ -192,23 +160,13 @@ void GateControlTask(void *pvParameters)
             if (!source_has_priority(ev.source))
                 break;
 
-            if (s == GATE_IDLE_OPEN    ||
-                s == GATE_STOPPED_MIDWAY)
+            if (s == GATE_IDLE_OPEN  ||
+                s == GATE_STOPPED_MIDWAY  ||
+                s == GATE_OPENING)
             {
                 print_state_transition(s, GATE_CLOSING);
-                g_gateState    = GATE_CLOSING;
-                g_activeSource = ev.source;
-                g_autoMode     = 0;
+                set_gate_state(GATE_CLOSING, ev.source, 1);
             }
-            else if (s == GATE_OPENING)
-            {
-                /* Reverse direction */
-                print_state_transition(s, GATE_CLOSING);
-                g_gateState    = GATE_CLOSING;
-                g_activeSource = ev.source;
-                g_autoMode     = 0;
-            }
-            /* IDLE_CLOSED / CLOSING / REVERSING -> ignore */
             break;
 
         /* ============================================================== */
@@ -220,16 +178,14 @@ void GateControlTask(void *pvParameters)
 
             if (s == GATE_CLOSING)
             {
-                if (ev.duration_ms < MANUAL_HOLD_THRESHOLD_MS)
+                if (ev.duration_ms >= MANUAL_HOLD_THRESHOLD_MS)
                 {
-                    g_autoMode = 1;
+                    print_state_transition(s, GATE_STOPPED_MIDWAY);
+                    set_gate_state(GATE_STOPPED_MIDWAY, SRC_NONE, 1);
                 }
                 else
                 {
-                    print_state_transition(s, GATE_STOPPED_MIDWAY);
-                    g_gateState    = GATE_STOPPED_MIDWAY;
-                    g_activeSource = SRC_NONE;
-                    g_autoMode     = 0;
+                    g_autoMode = 1;
                 }
             }
             break;
@@ -241,26 +197,15 @@ void GateControlTask(void *pvParameters)
             if (s == GATE_OPENING)
             {
                 print_state_transition(s, GATE_IDLE_OPEN);
-                g_gateState    = GATE_IDLE_OPEN;
-                g_activeSource = SRC_NONE;
-                g_autoMode     = 0;
-                extern volatile uint8_t gParkingOccupancy;
-                gParkingOccupancy++;
-                vPrintString("ENTRY SUCCESSFUL: Vehicle entered parking\r\n");
+                set_gate_state(GATE_IDLE_OPEN, SRC_NONE, 1);
             }
-            /* TC-12: wrong limit (e.g. Open Limit while closing) -> ignore */
             break;
 
         case EV_CLOSED_LIMIT:
             if (s == GATE_CLOSING)
             {
                 print_state_transition(s, GATE_IDLE_CLOSED);
-                g_gateState    = GATE_IDLE_CLOSED;
-                g_activeSource = SRC_NONE;
-                g_autoMode     = 0;
-                extern volatile uint8_t gParkingOccupancy;
-                if (gParkingOccupancy > 0) gParkingOccupancy--;
-                vPrintString("EXIT SUCCESSFUL: Vehicle left parking\r\n");
+                set_gate_state(GATE_IDLE_CLOSED, SRC_NONE, 1);
             }
             break;
 
@@ -280,11 +225,8 @@ void GateControlTask(void *pvParameters)
             if (s == GATE_OPENING || s == GATE_CLOSING)
             {
                 print_state_transition(s, GATE_STOPPED_MIDWAY);
-                g_gateState    = GATE_STOPPED_MIDWAY;
-                g_activeSource = SRC_NONE;
-                g_autoMode     = 0;
+                set_gate_state(GATE_STOPPED_MIDWAY, SRC_NONE, 1);
             }
-            /* If already stopped or idle, do nothing */
             break;
 
         default:

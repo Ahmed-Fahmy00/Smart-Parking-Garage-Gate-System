@@ -33,6 +33,7 @@
 #include "led_control.h"
 #include "safety_task.h"
 #include "status_task.h"
+#include "test_harness.h"
 #include "basic_io.h"
 
 /* ========================================================================== */
@@ -58,15 +59,7 @@ volatile uint8_t gSimOpenLimit    = 0;
 volatile uint8_t gSimClosedLimit  = 0;
 volatile uint8_t gSimObstacle     = 0;
 
-/* ========================================================================== */
-/*  Parking occupancy tracking                                                */
-/* ========================================================================== */
-/* Simple occupancy counter: tracks how many vehicles are inside.
-   Increments when gate reaches IDLE_OPEN (entry complete).
-   Decrements when gate reaches IDLE_CLOSED (exit complete).
-   Used to determine if parking is full. */
-volatile uint8_t gParkingOccupancy = 0;
-#define MAX_PARKING_PLACES  5    /* Maximum capacity */
+/* Parking occupancy tracking removed to match spec: only gate open/close simulated */
 
 /* ========================================================================== */
 /*  FreeRTOS hook functions                                                   */
@@ -132,16 +125,27 @@ int main(void)
     xTaskCreate(LEDControlTask,   "LEDCtrl",  128, NULL,  3,  NULL);
     xTaskCreate(StatusTask,       "Status",   128, NULL,  1,  NULL);
 
+    /* ---- 4. Optionally create test task ---- */
+
+    /* Create test task only when compiled-in and when test-mode enabled. */
+#if ENABLE_TEST_HARNESS
+    /* Set gEnableTestMode = 1 in debugger or test harness to run tests */
+    if (gEnableTestMode)
+    {
+        /* smaller stack for test task to reduce image size on constrained builds */
+        xTaskCreate(TestTask, "Test", 256, NULL, 9, NULL);
+        vPrintString("TEST MODE ENABLED - Running automated test suite\r\n");
+    }
+#else
+    vPrintString("Test harness not compiled into this build.\r\n");
+#endif
+
+
     /* ---- 5. Print startup status ---- */
     vPrintString("========================================\r\n");
     vPrintString("PARKING SYSTEM STARTED\r\n");
     {
-        char startup_msg[80];
-        sprintf(startup_msg, "Capacity: %d places | Occupied: %d | Available: %d\r\n",
-                MAX_PARKING_PLACES,
-                gParkingOccupancy,
-                MAX_PARKING_PLACES - gParkingOccupancy);
-        vPrintString(startup_msg);
+        vPrintString("Gate simulation: only open/close behavior enabled\r\n");
     }
     vPrintString("Gate Status: IDLE_CLOSED\r\n");
     vPrintString("========================================\r\n");

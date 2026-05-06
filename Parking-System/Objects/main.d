@@ -25,4 +25,5 @@
   C:\Users\Ahmed\ Fahmy\AppData\Local\Arm\Packs\ARM\CMSIS-FreeRTOS\11.2.0\Source\include\queue.h \
   C:\Users\Ahmed\ Fahmy\AppData\Local\Arm\Packs\ARM\CMSIS-FreeRTOS\11.2.0\Source\include\semphr.h \
   gpio_config.h gate_control.h tasks\input_task.h led_control.h \
-  tasks\safety_task.h tasks\status_task.h Required_Files\basic_io.h
+  tasks\safety_task.h tasks\status_task.h test_harness.h \
+  Required_Files\basic_io.h

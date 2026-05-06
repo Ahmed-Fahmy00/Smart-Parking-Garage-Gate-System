@@ -21,21 +21,16 @@ Target DLL:      UL2CM3.DLL V1.164.8.0
 Dialog DLL:      TCM.DLL V1.56.4.0
  
 <h2>Project:</h2>
-C:\Users\Ahmed Fahmy\Downloads\Projects\Embedded\Parking-System\project1.uvprojx
-Project File Date:  05/05/2026
+C:\Users\Ahmed Fahmy\Downloads\Projects\Embedded\Smart-Parking-Garage-Gate-System\Parking-System\project1.uvprojx
+Project File Date:  05/06/2026
 
 <h2>Output:</h2>
 *** Using Compiler 'V6.19', folder: 'C:\Keil_v5\ARM\ARMCLANG\Bin'
 Build target 'Target 1'
-compiling gpio_config.c...
-compiling led_control.c...
-compiling safety_task.c...
-compiling status_task.c...
-compiling input_task.c...
-compiling gate_control.c...
+compiling test_harness.c...
 compiling main.c...
 linking...
-Program Size: Code=26484 RO-data=1764 RW-data=8 ZI-data=11632  
+Program Size: Code=26104 RO-data=1680 RW-data=8 ZI-data=11624  
 ".\Objects\project1.axf" - 0 Error(s), 0 Warning(s).
 
 <h2>Software Packages used:</h2>
@@ -100,15 +95,15 @@ Package Vendor: Keil
       Include file:  CMSIS/RTOS2/FreeRTOS/Config/FreeRTOSConfig.h
 
    * Component: ARM.FreeRTOS::RTOS:Core:Cortex-M:11.2.0
-      Source file:   Source/portable/GCC/ARM_CM4F/port.c
-      Source file:   CMSIS/RTOS2/FreeRTOS/Source/freertos_evr.c
       Include file:  Source/include/FreeRTOS.h
-      Include file:  Source/include/queue.h
-      Source file:   Source/list.c
       Source file:   Source/queue.c
       Include file:  Source/include/semphr.h
+      Include file:  Source/include/queue.h
       Include file:  Source/include/task.h
+      Source file:   Source/portable/GCC/ARM_CM4F/port.c
+      Source file:   Source/list.c
       Source file:   Source/tasks.c
+      Source file:   CMSIS/RTOS2/FreeRTOS/Source/freertos_evr.c
 
    * Component: ARM.FreeRTOS::RTOS:Event Groups:11.2.0
       Include file:  Source/include/event_groups.h
@@ -118,8 +113,8 @@ Package Vendor: Keil
       Source file:   Source/portable/MemMang/heap_4.c
 
    * Component: ARM.FreeRTOS::RTOS:Timers:11.2.0
-      Include file:  Source/include/timers.h
       Source file:   Source/timers.c
+      Include file:  Source/include/timers.h
 
    * Component: ARM::CMSIS-Compiler:CORE:1.1.0
       Source file:   source/armcc/retarget_io.c
@@ -133,14 +128,14 @@ Package Vendor: Keil
       Source file:   CMSIS/RTOS2/Source/os_systick.c
 
    * Component: ARM::CMSIS:RTOS2:FreeRTOS:Cortex-M:11.2.0
-      Source file:   CMSIS/RTOS2/FreeRTOS/Source/clib_os.c
       Source file:   CMSIS/RTOS2/FreeRTOS/Source/cmsis_os2.c
       Include file:  CMSIS/RTOS2/FreeRTOS/Include/freertos_mpool.h
+      Source file:   CMSIS/RTOS2/FreeRTOS/Source/clib_os.c
 
    * Component: Keil::Device:Startup:1.0.1
-      Source file:   Device/Source/system_TM4C123.c
       Include file:  Device/Include/TM4C123/TM4C123.h
       Source file:   Device/Source/ARM/startup_TM4C123.s
+      Source file:   Device/Source/system_TM4C123.c
 Build Time Elapsed:  00:00:01
 </pre>
 </body>
