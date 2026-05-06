@@ -3,9 +3,9 @@
 <title>Static Call Graph - [.\Objects\project1.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\project1.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6190004: Last Updated: Wed May  6 19:12:11 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6190004: Last Updated: Wed May  6 20:37:58 2026
 <BR><P>
-<H3>Maximum Stack Usage =        624 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
+<H3>Maximum Stack Usage =        632 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
 GateControlTask &rArr; print_state_transition &rArr; vPrintString &rArr; sprintf &rArr; _printf_char_common &rArr; __printf
 <P>
@@ -1851,8 +1851,8 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[7d]"></a>GateControlTask</STRONG> (Thumb, 778 bytes, Stack size 368 bytes, gate_control.o(.text.GateControlTask))
-<BR><BR>[Stack]<UL><LI>Max Depth = 624 + Unknown Stack Size
+<P><STRONG><a name="[7d]"></a>GateControlTask</STRONG> (Thumb, 858 bytes, Stack size 376 bytes, gate_control.o(.text.GateControlTask))
+<BR><BR>[Stack]<UL><LI>Max Depth = 632 + Unknown Stack Size
 <LI>Call Chain = GateControlTask &rArr; print_state_transition &rArr; vPrintString &rArr; sprintf &rArr; _printf_char_common &rArr; __printf
 </UL>
 <BR>[Calls]<UL><LI><a href="#[ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueReceive
@@ -2009,7 +2009,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPrintString
 </UL>
 
-<P><STRONG><a name="[c3]"></a>main</STRONG> (Thumb, 404 bytes, Stack size 56 bytes, main.o(.text.main))
+<P><STRONG><a name="[c3]"></a>main</STRONG> (Thumb, 452 bytes, Stack size 56 bytes, main.o(.text.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 300 + Unknown Stack Size
 <LI>Call Chain = main &rArr; vTaskStartScheduler &rArr; prvCreateIdleTasks &rArr; xTaskCreateStatic &rArr; prvCreateStaticTask &rArr; prvInitialiseNewTask &rArr; pxPortInitialiseStack
 </UL>

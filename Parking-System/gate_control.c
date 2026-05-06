@@ -10,8 +10,6 @@
  * Key behaviours
  * -----------------------------------------------------------------------
  *  Manual mode      : gate moves while button is held; stops on release.
- *  One-touch auto   : a brief tap (<400 ms) keeps the gate moving until
- *                     the corresponding limit is reached.
  *  Security priority: security commands override driver commands.
  *  Conflict         : simultaneous OPEN+CLOSE on the same panel -> stop.
  *
@@ -33,6 +31,7 @@
 volatile GateState_t   g_gateState    = GATE_IDLE_CLOSED;
 volatile EventSource_t g_activeSource = SRC_NONE;
 volatile uint8_t       g_autoMode     = 0;
+volatile uint8_t       ManualMode     = 1;
 
 /* ========================================================================== */
 /*  Helpers                                                                   */
@@ -165,16 +164,25 @@ void GateControlTask(void *pvParameters)
 
             if (s == GATE_OPENING)
             {
-                if (ev.duration_ms >= MANUAL_HOLD_THRESHOLD_MS)
+                if (ManualMode)
                 {
-                    /* Manual hold -> stop gate */
+                    /* Manual mode: stop as soon as the button is released. */
                     print_state_transition(s, GATE_STOPPED_MIDWAY);
                     set_gate_state(GATE_STOPPED_MIDWAY, SRC_NONE, 1);
                 }
                 else
                 {
-                    /* Brief tap -> one-touch auto: keep moving to limit */
-                    g_autoMode = 1;
+                    if (ev.duration_ms < MANUAL_HOLD_THRESHOLD_MS)
+                    {
+                        /* Auto mode: brief tap continues automatically. */
+                        g_autoMode = 1;
+                    }
+                    else
+                    {
+                        /* Auto mode with long hold: stop on release. */
+                        print_state_transition(s, GATE_STOPPED_MIDWAY);
+                        set_gate_state(GATE_STOPPED_MIDWAY, SRC_NONE, 1);
+                    }
                 }
             }
             break;
@@ -214,22 +222,35 @@ void GateControlTask(void *pvParameters)
         /*  CLOSE button released                                         */
         /* ============================================================== */
         case EV_CLOSE_RELEASE:
+        {
             if (ev.source != g_activeSource)
                 break;
 
             if (s == GATE_CLOSING)
             {
-                if (ev.duration_ms >= MANUAL_HOLD_THRESHOLD_MS)
+                if (ManualMode)
                 {
+                    /* Manual mode: stop as soon as the button is released. */
                     print_state_transition(s, GATE_STOPPED_MIDWAY);
                     set_gate_state(GATE_STOPPED_MIDWAY, SRC_NONE, 1);
                 }
                 else
                 {
-                    g_autoMode = 1;
+                    if (ev.duration_ms < MANUAL_HOLD_THRESHOLD_MS)
+                    {
+                        /* Auto mode: brief tap continues automatically. */
+                        g_autoMode = 1;
+                    }
+                    else
+                    {
+                        /* Auto mode with long hold: stop on release. */
+                        print_state_transition(s, GATE_STOPPED_MIDWAY);
+                        set_gate_state(GATE_STOPPED_MIDWAY, SRC_NONE, 1);
+                    }
                 }
             }
             break;
+        }
 
         /* ============================================================== */
         /*  Limit buttons                                                 */

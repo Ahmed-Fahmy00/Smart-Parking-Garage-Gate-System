@@ -39,7 +39,6 @@
 /* ========================================================================== */
 /*  Global RTOS handles  (declared extern in gate_control.h)                 */
 /* ========================================================================== */
-
 QueueHandle_t       xButtonEventQueue  = NULL;
 SemaphoreHandle_t   xLimitSemaphore    = NULL;
 SemaphoreHandle_t   xObstacleSemaphore = NULL;
@@ -48,9 +47,6 @@ SemaphoreHandle_t   xGateStateMutex    = NULL;
 /* ========================================================================== */
 /*  Debug button simulation flags                                             */
 /* ========================================================================== */
-/* Set any of these to 1 in the debugger to simulate the corresponding
- * button being pressed. The GPIO readers in gpio_config.c merge these flags
- * with the physical pin state. */
 volatile uint8_t gSimDriverOpen   = 0;
 volatile uint8_t gSimDriverClose  = 0;
 volatile uint8_t gSimSecurityOpen = 0;
@@ -59,12 +55,9 @@ volatile uint8_t gSimOpenLimit    = 0;
 volatile uint8_t gSimClosedLimit  = 0;
 volatile uint8_t gSimObstacle     = 0;
 
-/* Parking occupancy tracking removed to match spec: only gate open/close simulated */
-
 /* ========================================================================== */
 /*  FreeRTOS hook functions                                                   */
 /* ========================================================================== */
-
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
 {
     (void)xTask;
@@ -86,6 +79,9 @@ void vApplicationMallocFailedHook(void)
 
 int main(void)
 {
+    /* 1 = Manual (stop on release), 0 = Auto (short tap continues) */
+    ManualMode = 1;
+
     /* ---- 1. Hardware init ---- */
     GPIO_Init();
     
@@ -107,25 +103,17 @@ int main(void)
     xGateStateMutex = xSemaphoreCreateMutex();
 
     /* Sanity check – halt if any object failed to create */
-    if (!xButtonEventQueue  ||
-        !xLimitSemaphore    ||
-        !xObstacleSemaphore ||
-        !xGateStateMutex)
+    if (!xButtonEventQueue || !xLimitSemaphore || !xObstacleSemaphore || !xGateStateMutex)
     {
         while (1);
     }
 
     /* ---- 3. Create application tasks ---- */
-    /*                                                                       *
-     *  Task name        Function          Stack   Param  Priority  Handle   *
-     *  ─────────────────────────────────────────────────────────────────     */
     xTaskCreate(SafetyTask,       "Safety",   256, NULL,  5,  NULL);
     xTaskCreate(InputTask,        "Input",    256, NULL,  4,  NULL);
     xTaskCreate(GateControlTask,  "GateCtrl", 256, NULL,  3,  NULL);
     xTaskCreate(LEDControlTask,   "LEDCtrl",  128, NULL,  3,  NULL);
     xTaskCreate(StatusTask,       "Status",   128, NULL,  1,  NULL);
-
-    /* ---- 4. Optionally create test task ---- */
 
     /* Create test task only when compiled-in and when test-mode enabled. */
 #if ENABLE_TEST_HARNESS
@@ -144,6 +132,10 @@ int main(void)
     /* ---- 5. Print startup status ---- */
     vPrintString("========================================\r\n");
     vPrintString("PARKING SYSTEM STARTED\r\n");
+    if (ManualMode)
+        vPrintString("Mode: MANUAL\r\n");
+    else
+        vPrintString("Mode: AUTO\r\n");
     vPrintString("Gate Status: IDLE_CLOSED\r\n");
     vPrintString("========================================\r\n");
 

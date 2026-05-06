@@ -13,7 +13,6 @@
 /* ========================================================================== */
 /*  Gate State Machine                                                        */
 /* ========================================================================== */
-
 typedef enum {
     GATE_IDLE_CLOSED,       /* Gate fully closed, both LEDs OFF          */
     GATE_IDLE_OPEN,         /* Gate fully open,  both LEDs OFF           */
@@ -26,7 +25,6 @@ typedef enum {
 /* ========================================================================== */
 /*  Event definitions (passed through the button-event queue)                 */
 /* ========================================================================== */
-
 typedef enum {
     SRC_NONE = 0,
     SRC_DRIVER,
@@ -56,6 +54,12 @@ typedef struct {
 /*  Timing constants                                                          */
 /* ========================================================================== */
 
+/* Gate operating mode selector:
+ *   1 = Manual mode (stop on button release)
+ *   0 = Auto mode   (short tap continues automatically)
+ */
+extern volatile uint8_t ManualMode;
+
 /* If a button is released within this window it counts as a "tap" and
    triggers one-touch-auto mode.  A longer hold is manual mode.             */
 #define MANUAL_HOLD_THRESHOLD_MS    400
@@ -66,7 +70,6 @@ typedef struct {
 /* ========================================================================== */
 /*  Global RTOS handles  (created in main.c)                                 */
 /* ========================================================================== */
-
 extern QueueHandle_t       xButtonEventQueue;   /* 20-deep event queue      */
 extern SemaphoreHandle_t   xLimitSemaphore;     /* signals limit activation */
 extern SemaphoreHandle_t   xObstacleSemaphore;  /* signals obstacle detect  */
@@ -75,7 +78,6 @@ extern SemaphoreHandle_t   xGateStateMutex;     /* protects shared state    */
 /* ========================================================================== */
 /*  Shared state variables  (protected by xGateStateMutex)                   */
 /* ========================================================================== */
-
 extern volatile GateState_t   g_gateState;
 extern volatile EventSource_t g_activeSource;   /* who started the move     */
 extern volatile uint8_t       g_autoMode;       /* 1 = one-touch auto       */
@@ -83,7 +85,6 @@ extern volatile uint8_t       g_autoMode;       /* 1 = one-touch auto       */
 /* ========================================================================== */
 /*  Task entry point                                                         */
 /* ========================================================================== */
-
 void GateControlTask(void *pvParameters);
 
 #endif /* GATE_CONTROL_H */
