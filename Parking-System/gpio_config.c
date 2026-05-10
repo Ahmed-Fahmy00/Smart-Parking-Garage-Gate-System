@@ -83,7 +83,6 @@ static uint8_t read_button_state(uint8_t simFlag, volatile uint32_t dataReg, uin
 /* ========================================================================== */
 /*  Initialisation                                                            */
 /* ========================================================================== */
-
 void GPIO_Init(void)
 {
     volatile uint32_t delay;
@@ -156,14 +155,13 @@ void GPIO_Init(void)
     GPIO_PORTD_PCTL_R  &= ~0x000000FFU;
     GPIO_PORTD_AFSEL_R &= ~((1U << 0) | (1U << 1));
     GPIO_PORTD_DIR_R   &= ~((1U << 0) | (1U << 1));
-    (*((volatile uint32_t *)0x40007514)) |=  ((1U << 0) | (1U << 1));
+    GPIO_PORTD_PDR_R   |=  ((1U << 0) | (1U << 1));
     GPIO_PORTD_DEN_R   |=  ((1U << 0) | (1U << 1));
 }
 
 /* ========================================================================== */
 /*  LED helpers                                                               */
 /* ========================================================================== */
-
 void LED_Red_On(void)    { vPrintString("[LED] Red\r\n"); GPIO_PORTF_DATA_R |=  LED_RED_PIN;   }
 void LED_Red_Off(void)   { GPIO_PORTF_DATA_R &= ~LED_RED_PIN;   }
 void LED_Green_On(void)  { vPrintString("[LED] Green\r\n"); GPIO_PORTF_DATA_R |=  LED_GREEN_PIN; }

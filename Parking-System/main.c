@@ -51,6 +51,14 @@ volatile uint8_t gSimOpenLimit    = 0;
 volatile uint8_t gSimClosedLimit  = 0;
 volatile uint8_t gSimObstacle     = 0;
 
+static void init_fail(const char *msg)
+{
+    vPrintString(msg);
+    for (;;)
+    {
+    }
+}
+
 /* ========================================================================== */
 /*  FreeRTOS hook functions                                                   */
 /* ========================================================================== */
@@ -84,45 +92,53 @@ int main(void)
 
      /* Queue: carries GateEvent_t structs from Input -> GateControl
          TC-19: Depth increased to 50 to prevent event loss under rapid input */
-     xButtonEventQueue = xQueueCreate(50, sizeof(GateEvent_t));
-     if (!xButtonEventQueue)
-     {
-          vPrintString("[Init] xButtonEventQueue creation failed\r\n");
-          while (1);
-     }
+    xButtonEventQueue = xQueueCreate(50, sizeof(GateEvent_t));
+    if (!xButtonEventQueue)
+    {
+        init_fail("[Init] xButtonEventQueue creation failed\r\n");
+    }
 
      /* Binary semaphore: Input task gives on limit-button press;
          GateControlTask consumes it to stop gate immediately (TC-21)       */
-     xLimitSemaphore = xSemaphoreCreateBinary();
-     if (!xLimitSemaphore)
-     {
-          vPrintString("[Init] xLimitSemaphore creation failed\r\n");
-          while (1);
-     }
+    xLimitSemaphore = xSemaphoreCreateBinary();
+    if (!xLimitSemaphore)
+    {
+        init_fail("[Init] xLimitSemaphore creation failed\r\n");
+    }
 
      /* Binary semaphore: Input task gives on obstacle-button press;
          SafetyTask takes to trigger the reverse manoeuvre.                  */
-     xObstacleSemaphore = xSemaphoreCreateBinary();
-     if (!xObstacleSemaphore)
-     {
-          vPrintString("[Init] xObstacleSemaphore creation failed\r\n");
-          while (1);
-     }
+    xObstacleSemaphore = xSemaphoreCreateBinary();
+    if (!xObstacleSemaphore)
+    {
+        init_fail("[Init] xObstacleSemaphore creation failed\r\n");
+    }
 
      /* Mutex: protects g_gateState / g_activeSource / g_autoMode across
          GateControl, Safety, and LED tasks.                                 */
-     xGateStateMutex = xSemaphoreCreateMutex();
-     if (!xGateStateMutex)
-     {
-          vPrintString("[Init] xGateStateMutex creation failed\r\n");
-          while (1);
-     }
+    xGateStateMutex = xSemaphoreCreateMutex();
+    if (!xGateStateMutex)
+    {
+        init_fail("[Init] xGateStateMutex creation failed\r\n");
+    }
 
     /* ---- 3. Create application tasks ---- */
-    xTaskCreate(SafetyTask,       "Safety",   256, NULL,  5,  NULL);
-    xTaskCreate(InputTask,        "Input",    256, NULL,  4,  NULL);
-    xTaskCreate(GateControlTask,  "GateCtrl", 256, NULL,  3,  NULL);
-    xTaskCreate(LEDControlTask,   "LEDCtrl",  128, NULL,  3,  NULL);
+    if (xTaskCreate(SafetyTask, "Safety", 256, NULL, 5, NULL) != pdPASS)
+    {
+        init_fail("[Init] SafetyTask creation failed\r\n");
+    }
+    if (xTaskCreate(InputTask, "Input", 256, NULL, 4, NULL) != pdPASS)
+    {
+        init_fail("[Init] InputTask creation failed\r\n");
+    }
+    if (xTaskCreate(GateControlTask, "GateCtrl", 256, NULL, 3, NULL) != pdPASS)
+    {
+        init_fail("[Init] GateControlTask creation failed\r\n");
+    }
+    if (xTaskCreate(LEDControlTask, "LEDCtrl", 128, NULL, 3, NULL) != pdPASS)
+    {
+        init_fail("[Init] LEDControlTask creation failed\r\n");
+    }
 
     /* ---- 5. Print startup status ---- */
     vPrintString("========================================\r\n");
@@ -135,4 +151,3 @@ int main(void)
 
     /* Should never reach here */
     while (1);
-}

@@ -70,7 +70,7 @@ extern volatile uint8_t ManualMode;
 /* ========================================================================== */
 /*  Global RTOS handles  (created in main.c)                                 */
 /* ========================================================================== */
-extern QueueHandle_t       xButtonEventQueue;   /* 20-deep event queue      */
+extern QueueHandle_t       xButtonEventQueue;   /* 50-deep event queue      */
 extern SemaphoreHandle_t   xLimitSemaphore;     /* signals limit activation */
 extern SemaphoreHandle_t   xObstacleSemaphore;  /* signals obstacle detect  */
 extern SemaphoreHandle_t   xGateStateMutex;     /* protects shared state    */

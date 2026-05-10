@@ -60,12 +60,11 @@ static const BtnReader_t btn_read[NUM_BTNS] = {
     Btn_SecurityClose_Read,
     Btn_OpenLimit_Read,
     Btn_ClosedLimit_Read,
-    Btn_Obstacle_Read
-    ,Btn_SW2_Read
+    Btn_Obstacle_Read,
+    Btn_SW2_Read
 };
 
 /* ---- Local helpers ---- */
-
 static void send_event(EventType_t type, EventSource_t src, uint32_t dur)
 {
     GateEvent_t ev;
@@ -78,10 +77,28 @@ static void send_event(EventType_t type, EventSource_t src, uint32_t dur)
     }
 }
 
+static void send_release_event(uint8_t buttonIdx,
+                               EventType_t releaseType,
+                               EventSource_t source,
+                               TickType_t now,
+                               const TickType_t *press_tick)
+{
+    uint32_t dur = (uint32_t)(now - press_tick[buttonIdx]) * portTICK_PERIOD_MS;
+    send_event(releaseType, source, dur);
+}
+
+static void send_limit_event(EventType_t type, const char *msg)
+{
+    GateEvent_t lev = { .type = type, .source = SRC_LIMIT, .duration_ms = 0 };
+    vPrintString(msg);
+    /* Send limit event to the front so GateControl sees it immediately */
+    xQueueSendToFront(xButtonEventQueue, &lev, pdMS_TO_TICKS(10));
+    xSemaphoreGive(xLimitSemaphore);
+}
+
 /* ========================================================================== */
 /*  Input Task                                                                */
 /* ========================================================================== */
-
 void InputTask(void *pvParameters)
 {
     (void)pvParameters;
@@ -202,60 +219,33 @@ void InputTask(void *pvParameters)
         if (ev_pressed[B_DRV_OPEN])
             send_event(EV_OPEN_PRESS, SRC_DRIVER, 0);
         if (ev_released[B_DRV_OPEN])
-        {
-            uint32_t dur = (uint32_t)(now - press_tick[B_DRV_OPEN])
-                           * portTICK_PERIOD_MS;
-            send_event(EV_OPEN_RELEASE, SRC_DRIVER, dur);
-        }
+            send_release_event(B_DRV_OPEN, EV_OPEN_RELEASE, SRC_DRIVER, now, press_tick);
 
         /* -- Driver CLOSE -- */
         if (ev_pressed[B_DRV_CLOSE])
             send_event(EV_CLOSE_PRESS, SRC_DRIVER, 0);
         if (ev_released[B_DRV_CLOSE])
-        {
-            uint32_t dur = (uint32_t)(now - press_tick[B_DRV_CLOSE])
-                           * portTICK_PERIOD_MS;
-            send_event(EV_CLOSE_RELEASE, SRC_DRIVER, dur);
-        }
+            send_release_event(B_DRV_CLOSE, EV_CLOSE_RELEASE, SRC_DRIVER, now, press_tick);
 
         /* -- Security OPEN -- */
         if (ev_pressed[B_SEC_OPEN])
             send_event(EV_OPEN_PRESS, SRC_SECURITY, 0);
         if (ev_released[B_SEC_OPEN])
-        {
-            uint32_t dur = (uint32_t)(now - press_tick[B_SEC_OPEN])
-                           * portTICK_PERIOD_MS;
-            send_event(EV_OPEN_RELEASE, SRC_SECURITY, dur);
-        }
+            send_release_event(B_SEC_OPEN, EV_OPEN_RELEASE, SRC_SECURITY, now, press_tick);
 
         /* -- Security CLOSE -- */
         if (ev_pressed[B_SEC_CLOSE])
             send_event(EV_CLOSE_PRESS, SRC_SECURITY, 0);
         if (ev_released[B_SEC_CLOSE])
-        {
-            uint32_t dur = (uint32_t)(now - press_tick[B_SEC_CLOSE])
-                           * portTICK_PERIOD_MS;
-            send_event(EV_CLOSE_RELEASE, SRC_SECURITY, dur);
-        }
+            send_release_event(B_SEC_CLOSE, EV_CLOSE_RELEASE, SRC_SECURITY, now, press_tick);
 
         /* ============================================================== */
         /*  4. Limit buttons  →  queue event + semaphore signal           */
         /* ============================================================== */
         if (ev_pressed[B_OPEN_LIM])
-        {
-            vPrintString("[Button] Open Limit pressed\r\n");
-            GateEvent_t lev = { .type = EV_OPEN_LIMIT, .source = SRC_LIMIT, .duration_ms = 0 };
-            /* Send limit event to the front so GateControl sees it immediately */
-            xQueueSendToFront(xButtonEventQueue, &lev, pdMS_TO_TICKS(10));
-            xSemaphoreGive(xLimitSemaphore);
-        }
+            send_limit_event(EV_OPEN_LIMIT, "[Button] Open Limit pressed\r\n");
         if (ev_pressed[B_CLOSED_LIM])
-        {
-            vPrintString("[Button] Closed Limit pressed\r\n");
-            GateEvent_t lev = { .type = EV_CLOSED_LIMIT, .source = SRC_LIMIT, .duration_ms = 0 };
-            xQueueSendToFront(xButtonEventQueue, &lev, pdMS_TO_TICKS(10));
-            xSemaphoreGive(xLimitSemaphore);
-        }
+            send_limit_event(EV_CLOSED_LIMIT, "[Button] Closed Limit pressed\r\n");
 
         /* ============================================================== */
         /*  5. Obstacle button  →  semaphore (consumed by Safety task)    */

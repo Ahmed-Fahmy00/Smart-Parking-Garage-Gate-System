@@ -37,9 +37,7 @@ volatile uint8_t       ManualMode     = 1;
 /*  Helpers                                                                   */
 /* ========================================================================== */
 
-/**
- * Convert gate state to human-readable string for debug output
- */
+//Convert gate state to human-readable string for debug output
 static const char * get_state_name(GateState_t state)
 {
     switch (state)
@@ -64,9 +62,7 @@ static const char * get_source_name(EventSource_t src)
     }
 }
 
-/**
- * Print gate state transition to serial/ADU
- */
+// Print gate state transition to serial/ADU
 static void print_state_transition(GateState_t oldState, GateState_t newState)
 {
     char msg[80];
@@ -77,9 +73,7 @@ static void print_state_transition(GateState_t oldState, GateState_t newState)
     vPrintString("\r\n");
 }
 
-/**
- * Helper: reset gate state to a new state with given source
- */
+// Helper: reset gate state to a new state with given source
 static void set_gate_state(GateState_t newState, EventSource_t newSource, uint8_t clearAuto)
 {
     g_gateState    = newState;
@@ -104,7 +98,6 @@ static uint8_t source_has_priority(EventSource_t newSrc)
 /* ========================================================================== */
 /*  Gate Control Task                                                         */
 /* ========================================================================== */
-
 void GateControlTask(void *pvParameters)
 {
     GateEvent_t ev;
