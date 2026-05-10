@@ -151,3 +151,4 @@ int main(void)
 
     /* Should never reach here */
     while (1);
+}
