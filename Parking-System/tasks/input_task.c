@@ -27,6 +27,7 @@
 #include "input_task.h"
 #include "gate_control.h"
 #include "gpio_config.h"
+#include "basic_io.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
@@ -45,6 +46,7 @@ enum {
     B_OPEN_LIM,
     B_CLOSED_LIM,
     B_OBSTACLE,
+    B_SW2,
     NUM_BTNS
 };
 
@@ -59,6 +61,7 @@ static const BtnReader_t btn_read[NUM_BTNS] = {
     Btn_OpenLimit_Read,
     Btn_ClosedLimit_Read,
     Btn_Obstacle_Read
+    ,Btn_SW2_Read
 };
 
 /* ---- Local helpers ---- */
@@ -240,11 +243,13 @@ void InputTask(void *pvParameters)
         /* ============================================================== */
         if (ev_pressed[B_OPEN_LIM])
         {
+            vPrintString("[Button] Open Limit pressed\r\n");
             send_event(EV_OPEN_LIMIT, SRC_LIMIT, 0);
             xSemaphoreGive(xLimitSemaphore);        /* signal semaphore */
         }
         if (ev_pressed[B_CLOSED_LIM])
         {
+            vPrintString("[Button] Closed Limit pressed\r\n");
             send_event(EV_CLOSED_LIMIT, SRC_LIMIT, 0);
             xSemaphoreGive(xLimitSemaphore);
         }
@@ -255,6 +260,16 @@ void InputTask(void *pvParameters)
         if (ev_pressed[B_OBSTACLE])
         {
             xSemaphoreGive(xObstacleSemaphore);
+        }
+
+        /* ---- SW2: toggle Manual/Auto mode on press ---- */
+        if (ev_pressed[B_SW2])
+        {
+            ManualMode = !ManualMode;
+            if (ManualMode)
+                vPrintString("Mode toggled: MANUAL\r\n");
+            else
+                vPrintString("Mode toggled: AUTO\r\n");
         }
 
         /* ---- Fixed-rate delay ---- */

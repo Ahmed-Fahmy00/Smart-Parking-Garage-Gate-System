@@ -16,7 +16,6 @@
  *        InputTask           4        Button polling & debouncing
  *        GateControlTask     3        FSM / gate logic
  *        LEDControlTask      3        LED output
- *        StatusTask          1        Limit-LED feedback (lowest)
  *   4. Starts the FreeRTOS scheduler.
  ******************************************************************************/
 #include <stdint.h>
@@ -31,7 +30,6 @@
 #include "input_task.h"
 #include "led_control.h"
 #include "safety_task.h"
-#include "status_task.h"
 #include "basic_io.h"
 
 /* ========================================================================== */
@@ -74,7 +72,6 @@ void vApplicationMallocFailedHook(void)
 /* ========================================================================== */
 /*  main                                                                      */
 /* ========================================================================== */
-
 int main(void)
 {
     /* 1 = Manual (stop on release), 0 = Auto (short tap continues) */
@@ -111,15 +108,11 @@ int main(void)
     xTaskCreate(InputTask,        "Input",    256, NULL,  4,  NULL);
     xTaskCreate(GateControlTask,  "GateCtrl", 256, NULL,  3,  NULL);
     xTaskCreate(LEDControlTask,   "LEDCtrl",  128, NULL,  3,  NULL);
-    xTaskCreate(StatusTask,       "Status",   128, NULL,  1,  NULL);
+    /* StatusTask removed (no longer used) */
 
     /* ---- 5. Print startup status ---- */
     vPrintString("========================================\r\n");
     vPrintString("PARKING SYSTEM STARTED\r\n");
-    if (ManualMode)
-        vPrintString("Mode: MANUAL\r\n");
-    else
-        vPrintString("Mode: AUTO\r\n");
     vPrintString("Gate Status: IDLE_CLOSED\r\n");
     vPrintString("========================================\r\n");
 

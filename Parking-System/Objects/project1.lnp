@@ -5,7 +5,6 @@
 ".\objects\gate_control.o"
 ".\objects\input_task.o"
 ".\objects\safety_task.o"
-".\objects\status_task.o"
 ".\objects\basic_io.o"
 ".\objects\consoleprint.o"
 ".\objects\retarget.o"

@@ -145,8 +145,8 @@ void GateControlTask(void *pvParameters)
             }
 
             if (s == GATE_IDLE_CLOSED  ||
-                s == GATE_STOPPED_MIDWAY  ||
-                s == GATE_CLOSING)
+                s == GATE_IDLE_OPEN  ||
+                s == GATE_STOPPED_MIDWAY)
             {
                 print_state_transition(s, GATE_OPENING);
                 set_gate_state(GATE_OPENING, ev.source, 1);
@@ -208,9 +208,9 @@ void GateControlTask(void *pvParameters)
                 break;
             }
 
-            if (s == GATE_IDLE_OPEN  ||
-                s == GATE_STOPPED_MIDWAY  ||
-                s == GATE_OPENING)
+            if (s == GATE_IDLE_CLOSED  ||
+                s == GATE_IDLE_OPEN  ||
+                s == GATE_STOPPED_MIDWAY)
             {
                 print_state_transition(s, GATE_CLOSING);
                 set_gate_state(GATE_CLOSING, ev.source, 1);
@@ -258,6 +258,7 @@ void GateControlTask(void *pvParameters)
         case EV_OPEN_LIMIT:
             if (s == GATE_OPENING)
             {
+                vPrintString("[Gate FSM] Open Limit reached\r\n");
                 print_state_transition(s, GATE_IDLE_OPEN);
                 set_gate_state(GATE_IDLE_OPEN, SRC_NONE, 1);
             }
@@ -266,6 +267,7 @@ void GateControlTask(void *pvParameters)
         case EV_CLOSED_LIMIT:
             if (s == GATE_CLOSING)
             {
+                vPrintString("[Gate FSM] Closed Limit reached\r\n");
                 print_state_transition(s, GATE_IDLE_CLOSED);
                 set_gate_state(GATE_IDLE_CLOSED, SRC_NONE, 1);
             }
