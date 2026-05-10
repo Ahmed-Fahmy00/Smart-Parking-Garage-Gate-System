@@ -114,8 +114,13 @@ void GPIO_Init(void)
     GPIO_PORTF_DIR_R   |=  (1U << 1) | (1U << 2) | (1U << 3);
     GPIO_PORTF_DIR_R   &= ~(1U << 4);
 
-    /* PF0 and PF4 are active-high, so use pull-downs */
-    GPIO_PORTF_PDR_R   |=  (1U << 0) | (1U << 4);
+    /* PF0 (on-board SW2) stays active-low with pull-up.
+     * PF4 is used by your external obstacle button as active-high,
+     * so keep PF4 on pull-down. */
+    GPIO_PORTF_PUR_R   |=  (1U << 0);
+    GPIO_PORTF_PUR_R   &= ~(1U << 4);
+    GPIO_PORTF_PDR_R   |=  (1U << 4);
+    GPIO_PORTF_PDR_R   &= ~(1U << 0);
 
     /* Digital enable PF0..PF4 */
     GPIO_PORTF_DEN_R   |=  (1U << 0) | (1U << 1) | (1U << 2) | (1U << 3) | (1U << 4);
@@ -237,7 +242,8 @@ uint8_t Btn_Obstacle_Read(void)
 
 uint8_t Btn_SW2_Read(void)
 {
-    return read_button_state(0, GPIO_PORTF_DATA_R, BTN_SW2_PIN);
+    /* SW2 on PF0 is active-low on the LaunchPad: low==pressed */
+    return ((GPIO_PORTF_DATA_R & BTN_SW2_PIN) == 0U) ? BTN_PRESSED : BTN_RELEASED;
 }
 
 uint16_t ADC_Slider_Read(void)

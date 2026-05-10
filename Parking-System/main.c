@@ -5,11 +5,11 @@
  * This file:
  *   1. Initialises the GPIO hardware.
  *   2. Creates the RTOS inter-task communication objects:
- *        - xButtonEventQueue   (Queue  – 20 deep)
- *        - xLimitSemaphore     (Binary Semaphore)
- *        - xObstacleSemaphore  (Binary Semaphore)
- *        - xGateStateMutex     (Mutex)
- *   3. Creates all five application tasks with correct priorities:
+ *        - xButtonEventQueue   (Queue  – 50 deep, prevents event loss)
+ *        - xLimitSemaphore     (Binary Semaphore, signals limit activation)
+ *        - xObstacleSemaphore  (Binary Semaphore, signals obstacle)
+ *        - xGateStateMutex     (Mutex, protects shared state)
+ *   3. Creates all application tasks with correct priorities:
  *        Task              Priority   Purpose
  *        ──────────────────────────────────────────────
  *        SafetyTask          5        Obstacle response (highest)
@@ -82,33 +82,47 @@ int main(void)
     
     /* ---- 2. Create RTOS communication objects ---- */
 
-    /* Queue: carries GateEvent_t structs from Input → GateControl          */
-    xButtonEventQueue = xQueueCreate(20, sizeof(GateEvent_t));
+     /* Queue: carries GateEvent_t structs from Input -> GateControl
+         TC-19: Depth increased to 50 to prevent event loss under rapid input */
+     xButtonEventQueue = xQueueCreate(50, sizeof(GateEvent_t));
+     if (!xButtonEventQueue)
+     {
+          vPrintString("[Init] xButtonEventQueue creation failed\r\n");
+          while (1);
+     }
 
-    /* Binary semaphore: Input task gives on limit-button press;
-       StatusTask takes to flash the Blue LED.                              */
-    xLimitSemaphore = xSemaphoreCreateBinary();
+     /* Binary semaphore: Input task gives on limit-button press;
+         GateControlTask consumes it to stop gate immediately (TC-21)       */
+     xLimitSemaphore = xSemaphoreCreateBinary();
+     if (!xLimitSemaphore)
+     {
+          vPrintString("[Init] xLimitSemaphore creation failed\r\n");
+          while (1);
+     }
 
-    /* Binary semaphore: Input task gives on obstacle-button press;
-       SafetyTask takes to trigger the reverse manoeuvre.                   */
-    xObstacleSemaphore = xSemaphoreCreateBinary();
+     /* Binary semaphore: Input task gives on obstacle-button press;
+         SafetyTask takes to trigger the reverse manoeuvre.                  */
+     xObstacleSemaphore = xSemaphoreCreateBinary();
+     if (!xObstacleSemaphore)
+     {
+          vPrintString("[Init] xObstacleSemaphore creation failed\r\n");
+          while (1);
+     }
 
-    /* Mutex: protects g_gateState / g_activeSource / g_autoMode across
-       GateControl, Safety, and LED tasks.                                  */
-    xGateStateMutex = xSemaphoreCreateMutex();
-
-    /* Sanity check – halt if any object failed to create */
-    if (!xButtonEventQueue || !xLimitSemaphore || !xObstacleSemaphore || !xGateStateMutex)
-    {
-        while (1);
-    }
+     /* Mutex: protects g_gateState / g_activeSource / g_autoMode across
+         GateControl, Safety, and LED tasks.                                 */
+     xGateStateMutex = xSemaphoreCreateMutex();
+     if (!xGateStateMutex)
+     {
+          vPrintString("[Init] xGateStateMutex creation failed\r\n");
+          while (1);
+     }
 
     /* ---- 3. Create application tasks ---- */
     xTaskCreate(SafetyTask,       "Safety",   256, NULL,  5,  NULL);
     xTaskCreate(InputTask,        "Input",    256, NULL,  4,  NULL);
     xTaskCreate(GateControlTask,  "GateCtrl", 256, NULL,  3,  NULL);
     xTaskCreate(LEDControlTask,   "LEDCtrl",  128, NULL,  3,  NULL);
-    /* StatusTask removed (no longer used) */
 
     /* ---- 5. Print startup status ---- */
     vPrintString("========================================\r\n");

@@ -112,9 +112,36 @@ void GateControlTask(void *pvParameters)
 
     for (;;)
     {
-        /* Block until an event arrives on the queue */
-        if (xQueueReceive(xButtonEventQueue, &ev, portMAX_DELAY) != pdTRUE)
-            continue;
+        /* Wait for queue event with timeout, allowing periodic semaphore checks */
+        if (xQueueReceive(xButtonEventQueue, &ev, pdMS_TO_TICKS(50)) == pdTRUE)
+        {
+            /* Event received; process it */
+        }
+        else
+        {
+            /* No queue event; check if limit semaphore was signaled (TC-21) */
+            if (xSemaphoreTake(xLimitSemaphore, 0) == pdTRUE)
+            {
+                /* Limit button pressed; create synthetic limit event */
+                xSemaphoreTake(xGateStateMutex, portMAX_DELAY);
+                
+                if (g_gateState == GATE_OPENING || g_gateState == GATE_CLOSING)
+                {
+                    vPrintString("[Gate FSM] Limit semaphore triggered immediate stop\r\n");
+                    if (g_gateState == GATE_OPENING)
+                        print_state_transition(g_gateState, GATE_IDLE_OPEN);
+                    else
+                        print_state_transition(g_gateState, GATE_IDLE_CLOSED);
+                    
+                    g_gateState    = (g_gateState == GATE_OPENING) ? GATE_IDLE_OPEN : GATE_IDLE_CLOSED;
+                    g_activeSource = SRC_NONE;
+                    g_autoMode     = 0;
+                }
+                
+                xSemaphoreGive(xGateStateMutex);
+            }
+            continue;  /* Loop back to wait for next event or semaphore */
+        }
 
         /* ---------- Lock shared state ---------- */
         xSemaphoreTake(xGateStateMutex, portMAX_DELAY);
@@ -146,7 +173,8 @@ void GateControlTask(void *pvParameters)
 
             if (s == GATE_IDLE_CLOSED  ||
                 s == GATE_IDLE_OPEN  ||
-                s == GATE_STOPPED_MIDWAY)
+                s == GATE_STOPPED_MIDWAY ||
+                (s == GATE_CLOSING && ev.source == SRC_SECURITY))
             {
                 print_state_transition(s, GATE_OPENING);
                 set_gate_state(GATE_OPENING, ev.source, 1);
@@ -210,7 +238,8 @@ void GateControlTask(void *pvParameters)
 
             if (s == GATE_IDLE_CLOSED  ||
                 s == GATE_IDLE_OPEN  ||
-                s == GATE_STOPPED_MIDWAY)
+                s == GATE_STOPPED_MIDWAY ||
+                (s == GATE_OPENING && ev.source == SRC_SECURITY))
             {
                 print_state_transition(s, GATE_CLOSING);
                 set_gate_state(GATE_CLOSING, ev.source, 1);

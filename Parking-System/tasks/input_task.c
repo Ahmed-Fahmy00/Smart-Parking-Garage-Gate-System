@@ -7,8 +7,8 @@
  * -----------------
  * A change in the raw reading resets a per-button counter.  Once the raw
  * reading has been stable for DEBOUNCE_CYCLES consecutive polls the new
- * state is accepted.  With a 10 ms poll period and DEBOUNCE_CYCLES = 3 the
- * effective debounce window is 30 ms.
+ * state is accepted.  With a 10 ms poll period and DEBOUNCE_CYCLES = 2 the
+ * effective debounce window is 20 ms.
  *
  * Conflict detection
  * ------------------
@@ -35,7 +35,7 @@
 
 /* ---- Tuning ---- */
 #define POLL_PERIOD_MS      10
-#define DEBOUNCE_CYCLES     3       /* x POLL_PERIOD_MS = 30 ms */
+#define DEBOUNCE_CYCLES     2       /* x POLL_PERIOD_MS = 20 ms */
 
 /* ---- Internal button indices ---- */
 enum {
@@ -244,13 +244,16 @@ void InputTask(void *pvParameters)
         if (ev_pressed[B_OPEN_LIM])
         {
             vPrintString("[Button] Open Limit pressed\r\n");
-            send_event(EV_OPEN_LIMIT, SRC_LIMIT, 0);
-            xSemaphoreGive(xLimitSemaphore);        /* signal semaphore */
+            GateEvent_t lev = { .type = EV_OPEN_LIMIT, .source = SRC_LIMIT, .duration_ms = 0 };
+            /* Send limit event to the front so GateControl sees it immediately */
+            xQueueSendToFront(xButtonEventQueue, &lev, pdMS_TO_TICKS(10));
+            xSemaphoreGive(xLimitSemaphore);
         }
         if (ev_pressed[B_CLOSED_LIM])
         {
             vPrintString("[Button] Closed Limit pressed\r\n");
-            send_event(EV_CLOSED_LIMIT, SRC_LIMIT, 0);
+            GateEvent_t lev = { .type = EV_CLOSED_LIMIT, .source = SRC_LIMIT, .duration_ms = 0 };
+            xQueueSendToFront(xButtonEventQueue, &lev, pdMS_TO_TICKS(10));
             xSemaphoreGive(xLimitSemaphore);
         }
 
